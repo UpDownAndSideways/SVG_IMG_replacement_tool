@@ -1,0 +1,6 @@
+{
+  "name": "CardCraft SVG Image Mapper",
+  "description": "Upload an SVG business card template, detect linked and embedded image placeholders, map new images, and export print-ready vectors.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
