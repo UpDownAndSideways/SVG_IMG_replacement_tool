@@ -4,8 +4,7 @@
  */
 
 import React, { useState, useRef } from 'react';
-import { UploadCloud, Code, ArrowRight, FileText, CheckCircle2, Sparkles, AlertCircle } from 'lucide-react';
-import { SAMPLE_TEMPLATES, CardTemplate } from '../data/sampleTemplates.ts';
+import { UploadCloud, Code, ArrowRight, AlertCircle } from 'lucide-react';
 import { parseSvgImages, validateSvg } from '../utils/svgImageParser.ts';
 
 interface Step1UploadProps {
@@ -64,10 +63,6 @@ export const Step1Upload: React.FC<Step1UploadProps> = ({ onSvgLoaded }) => {
   const handlePasteSubmit = () => {
     if (!pastedText.trim()) return;
     processSvgContent(pastedText, 'pasted-template.svg');
-  };
-
-  const handleTemplateSelect = (template: CardTemplate) => {
-    processSvgContent(template.svgContent, `${template.id}.svg`);
   };
 
   return (
@@ -189,56 +184,30 @@ export const Step1Upload: React.FC<Step1UploadProps> = ({ onSvgLoaded }) => {
         </div>
       )}
 
-      {/* Instant Sample Templates Section */}
-      <div className="mt-14">
-        <div className="flex items-center justify-between mb-5">
+      {/* Clean Guide Box */}
+      <div className="mt-12 p-6 rounded-2xl bg-white border border-black/5 apple-card-shadow">
+        <h4 className="text-xs font-semibold text-[#86868B] uppercase tracking-wider mb-3">
+          How CardCraft Works
+        </h4>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 text-xs text-[#6E6E73]">
           <div>
-            <h3 className="text-base font-semibold text-[#1D1D1F] flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-[#0071E3]" />
-              Or start with a curated business card template
-            </h3>
-            <p className="text-xs sm:text-sm text-[#86868B] mt-0.5">
-              Standard 3.5" × 2" cards with pre-configured image placeholders
+            <div className="font-semibold text-[#1D1D1F] text-sm mb-1">1. Upload SVG</div>
+            <p className="leading-relaxed">
+              Export your business card design from Figma, Illustrator, or Inkscape as an SVG file and drop it here.
             </p>
           </div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          {SAMPLE_TEMPLATES.map((tmpl) => (
-            <button
-              key={tmpl.id}
-              onClick={() => handleTemplateSelect(tmpl)}
-              className="group text-left p-5 rounded-2xl bg-white hover:bg-[#FAFAFC] border border-black/5 apple-card-shadow transition-all duration-200 hover:-translate-y-0.5 flex flex-col justify-between"
-            >
-              <div>
-                <div className="w-full aspect-[1.75/1] rounded-xl bg-[#F5F5F7] mb-3.5 overflow-hidden flex items-center justify-center p-2.5 border border-black/5 group-hover:border-[#0071E3]/30 transition-colors">
-                  <div
-                    className="w-full h-full [&>svg]:w-full [&>svg]:h-full pointer-events-none"
-                    dangerouslySetInnerHTML={{ __html: tmpl.svgContent }}
-                  />
-                </div>
-
-                <div className="text-xs text-[#0071E3] font-medium mb-1">
-                  {tmpl.category}
-                </div>
-                <h4 className="text-sm font-semibold text-[#1D1D1F] group-hover:text-[#0071E3] transition-colors">
-                  {tmpl.name}
-                </h4>
-                <p className="text-xs text-[#86868B] mt-1 line-clamp-2">
-                  {tmpl.description}
-                </p>
-              </div>
-
-              <div className="mt-4 pt-3 border-t border-black/5 flex items-center justify-between text-xs text-[#6E6E73]">
-                <span className="font-mono tabular-nums">
-                  {tmpl.imageSlotCount} Image {tmpl.imageSlotCount === 1 ? 'Slot' : 'Slots'}
-                </span>
-                <span className="font-medium text-[#0071E3] group-hover:translate-x-0.5 transition-transform flex items-center gap-1">
-                  Load <ArrowRight className="w-3 h-3" />
-                </span>
-              </div>
-            </button>
-          ))}
+          <div>
+            <div className="font-semibold text-[#1D1D1F] text-sm mb-1">2. Map Images</div>
+            <p className="leading-relaxed">
+              Upload replacement headshots or logos. Map them to all placeholders at once or configure each slot.
+            </p>
+          </div>
+          <div>
+            <div className="font-semibold text-[#1D1D1F] text-sm mb-1">3. Actual Size Print</div>
+            <p className="leading-relaxed">
+              Export a 300 DPI print-ready PDF or high-res PNG sized for Letter, Ledger, or A3 sheets at actual size.
+            </p>
+          </div>
         </div>
       </div>
     </div>

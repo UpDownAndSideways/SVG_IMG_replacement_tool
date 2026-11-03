@@ -63,7 +63,17 @@ export function parseSvgImages(svgText: string): ParseSvgResult {
       const w = parts[2];
       const h = parts[3];
       const ratio = w / h;
-      if (Math.abs(ratio - 1.75) < 0.1 || Math.abs(ratio - 3.5 / 2) < 0.1) {
+      const longSide = Math.max(w, h);
+      const shortSide = Math.min(w, h);
+      const sheetRatio = longSide / shortSide;
+
+      if (Math.abs(sheetRatio - (420 / 297)) < 0.05) {
+        aspectRatioDisplay = 'A3 Sheet (297 × 420 mm)';
+      } else if (Math.abs(sheetRatio - (17 / 11)) < 0.05) {
+        aspectRatioDisplay = 'Ledger / Tabloid (11" × 17")';
+      } else if (Math.abs(sheetRatio - (11 / 8.5)) < 0.05) {
+        aspectRatioDisplay = 'Letter Sheet (8.5" × 11")';
+      } else if (Math.abs(ratio - 1.75) < 0.1 || Math.abs(ratio - 3.5 / 2) < 0.1) {
         aspectRatioDisplay = '3.5" × 2" (Standard Business Card)';
       } else if (Math.abs(ratio - 1.64) < 0.1) {
         aspectRatioDisplay = '85mm × 55mm (European Card)';

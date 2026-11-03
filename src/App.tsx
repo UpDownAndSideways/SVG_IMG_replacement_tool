@@ -8,7 +8,6 @@ import { Header } from './components/Header.tsx';
 import { Step1Upload } from './components/Step1Upload.tsx';
 import { Step2Map } from './components/Step2Map.tsx';
 import { Step3Export } from './components/Step3Export.tsx';
-import { SAMPLE_TEMPLATES } from './data/sampleTemplates.ts';
 import { parseSvgImages, ParseSvgResult } from './utils/svgImageParser.ts';
 
 export default function App() {
@@ -16,18 +15,6 @@ export default function App() {
   const [originalSvg, setOriginalSvg] = useState<string>('');
   const [currentSvg, setCurrentSvg] = useState<string>('');
   const [fileName, setFileName] = useState<string>('business-card.svg');
-
-  // Support ?autostart=1 for instant testability as required by Ultra Mode
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('autostart') === '1') {
-      const defaultTmpl = SAMPLE_TEMPLATES[0];
-      setOriginalSvg(defaultTmpl.svgContent);
-      setCurrentSvg(defaultTmpl.svgContent);
-      setFileName(`${defaultTmpl.id}.svg`);
-      setCurrentStep(2);
-    }
-  }, []);
 
   // Parse current SVG whenever it updates
   const parsedSvg: ParseSvgResult = useMemo(() => {
@@ -102,7 +89,7 @@ export default function App() {
           <div className="flex items-center gap-3">
             <span>Client-side Processing</span>
             <span>·</span>
-            <span>Vector 300 DPI Export</span>
+            <span>Actual Size 300 DPI Export</span>
           </div>
         </div>
       </footer>

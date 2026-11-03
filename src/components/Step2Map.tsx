@@ -6,20 +6,14 @@
 import React, { useState, useRef } from 'react';
 import {
   Upload,
-  Layers,
-  Sparkles,
   ArrowRight,
   RotateCcw,
   Check,
   Image as ImageIcon,
   Sliders,
-  ExternalLink,
-  Info,
-  Maximize,
 } from 'lucide-react';
 import { SvgImageSlot, ParseSvgResult, replaceSvgImages, replaceAllSvgImages, ReplaceOptions } from '../utils/svgImageParser.ts';
 import { SvgPreview } from './SvgPreview.tsx';
-import { SAMPLE_REPLACEMENT_IMAGES } from '../data/sampleImages.ts';
 
 interface Step2MapProps {
   originalSvg: string;
@@ -44,7 +38,6 @@ export const Step2Map: React.FC<Step2MapProps> = ({
   const [fitMode, setFitMode] = useState<'cover' | 'contain' | 'original'>('cover');
   const [activeTab, setActiveTab] = useState<'bulk' | 'slots'>('bulk');
   const [selectedSlotIndex, setSelectedSlotIndex] = useState<number | null>(null);
-  const [openPresetSlotIndex, setOpenPresetSlotIndex] = useState<number | null>(null);
   const [lastActionMessage, setLastActionMessage] = useState<string | null>(null);
 
   const bulkFileInputRef = useRef<HTMLInputElement>(null);
@@ -75,16 +68,6 @@ export const Step2Map: React.FC<Step2MapProps> = ({
     }
   };
 
-  // Map a preset sample image to ALL
-  const handleMapSampleToAll = (sampleDataUrl: string, sampleName: string) => {
-    const updated = replaceAllSvgImages(currentSvg, sampleDataUrl, {
-      preserveAspectRatio: fitMode,
-    });
-    onUpdateSvg(updated);
-    setLastActionMessage(`Mapped ${sampleName} to all placeholders`);
-    setTimeout(() => setLastActionMessage(null), 3500);
-  };
-
   // Map image to a specific slot
   const handleMapToSingleSlot = async (slotIndex: number, file: File) => {
     try {
@@ -98,16 +81,6 @@ export const Step2Map: React.FC<Step2MapProps> = ({
     } catch (err) {
       console.error('Failed to update slot', err);
     }
-  };
-
-  // Map preset sample to single slot
-  const handleMapSampleToSlot = (slotIndex: number, sampleDataUrl: string, sampleName: string) => {
-    const updated = replaceSvgImages(currentSvg, { [slotIndex]: sampleDataUrl }, {
-      preserveAspectRatio: fitMode,
-    });
-    onUpdateSvg(updated);
-    setLastActionMessage(`Applied ${sampleName} to Slot #${slotIndex + 1}`);
-    setTimeout(() => setLastActionMessage(null), 3500);
   };
 
   // Revert card back to original uploaded state
@@ -279,37 +252,12 @@ export const Step2Map: React.FC<Step2MapProps> = ({
                 </div>
               </div>
 
-              {/* Quick Preset Sample Images for Instant 1-Click Testing */}
-              <div>
-                <div className="text-xs font-semibold text-[#86868B] mb-2 flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5 text-[#0071E3]" />
-                  <span>Or quickly test with a sample asset</span>
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  {SAMPLE_REPLACEMENT_IMAGES.map((sample) => (
-                    <button
-                      key={sample.id}
-                      onClick={() => handleMapSampleToAll(sample.dataUrl, sample.name)}
-                      className="p-2.5 rounded-xl border border-black/5 bg-[#F9F9FB] hover:bg-[#F2F2F7] hover:border-black/10 transition-all flex items-center gap-2.5 text-left group"
-                    >
-                      <div className="w-9 h-9 rounded-lg bg-white border border-black/5 overflow-hidden flex items-center justify-center shrink-0">
-                        <img
-                          src={sample.dataUrl}
-                          alt={sample.name}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <div className="truncate min-w-0">
-                        <div className="text-xs font-medium text-[#1D1D1F] group-hover:text-[#0071E3] truncate">
-                          {sample.name}
-                        </div>
-                        <div className="text-[10px] text-[#86868B]">
-                          {sample.category}
-                        </div>
-                      </div>
-                    </button>
-                  ))}
-                </div>
+              {/* Helper info banner */}
+              <div className="p-4 rounded-xl bg-[#F5F5F7] border border-black/5 text-xs text-[#6E6E73] flex flex-col gap-1.5">
+                <div className="font-semibold text-[#1D1D1F]">Batch Image Replacement</div>
+                <p className="leading-relaxed">
+                  Drop any photograph, corporate monogram, portrait, or vector artwork. It will be encoded as base64 and mapped across all image positions in your template.
+                </p>
               </div>
             </div>
           )}
@@ -385,45 +333,18 @@ export const Step2Map: React.FC<Step2MapProps> = ({
                           )}
                         </div>
 
-                        {/* Replace Button & Sample Dropdown */}
+                        {/* Replace Button */}
                         <div className="mt-3 flex items-center gap-2">
                           <button
                             onClick={() => {
                               setSelectedSlotIndex(slot.index);
                               slotFileInputRef.current?.click();
                             }}
-                            className="px-3 py-1.5 text-xs font-medium text-[#1D1D1F] bg-[#F2F2F7] hover:bg-[#E5E5EA] active:bg-[#D1D1D6] rounded-full transition-colors flex items-center gap-1.5"
+                            className="px-3.5 py-1.5 text-xs font-medium text-[#1D1D1F] bg-[#F2F2F7] hover:bg-[#E5E5EA] active:bg-[#D1D1D6] rounded-full transition-colors flex items-center gap-1.5"
                           >
                             <Upload className="w-3 h-3 text-[#0071E3]" />
-                            <span>Replace Image</span>
+                            <span>Upload Image for this Slot</span>
                           </button>
-
-                          {/* Quick Preset for this slot */}
-                          <div className="relative">
-                            <button
-                              onClick={() => setOpenPresetSlotIndex(openPresetSlotIndex === slot.index ? null : slot.index)}
-                              className="px-2.5 py-1.5 text-xs text-[#6E6E73] hover:text-[#1D1D1F] bg-[#F9F9FB] border border-black/5 hover:border-black/10 rounded-full transition-colors"
-                            >
-                              Presets ▾
-                            </button>
-                            {openPresetSlotIndex === slot.index && (
-                              <div className="absolute left-0 bottom-full mb-1 z-30 bg-white rounded-xl shadow-xl border border-black/10 p-1.5 w-48 animate-in fade-in duration-150">
-                                {SAMPLE_REPLACEMENT_IMAGES.map((s) => (
-                                  <button
-                                    key={s.id}
-                                    onClick={() => {
-                                      handleMapSampleToSlot(slot.index, s.dataUrl, s.name);
-                                      setOpenPresetSlotIndex(null);
-                                    }}
-                                    className="w-full text-left px-2.5 py-1.5 text-xs rounded-lg hover:bg-[#F2F2F7] flex items-center gap-2 text-[#1D1D1F]"
-                                  >
-                                    <img src={s.dataUrl} alt={s.name} className="w-5 h-5 rounded-sm object-cover" />
-                                    <span className="truncate">{s.name}</span>
-                                  </button>
-                                ))}
-                              </div>
-                            )}
-                          </div>
                         </div>
                       </div>
                     </div>
