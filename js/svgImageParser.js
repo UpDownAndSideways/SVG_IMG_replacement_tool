@@ -3,47 +3,20 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export interface SvgImageSlot {
-  id: string;
-  originalId?: string;
-  index: number;
-  href: string;
-  hasXlink: boolean;
-  width?: string;
-  height?: string;
-  x?: string;
-  y?: string;
-  preserveAspectRatio?: string;
-  clipPath?: string;
-  type: 'base64' | 'remote' | 'relative' | 'empty';
-  mimeType?: string;
-  label: string;
-  rawTag: string;
-}
-
-export interface ParseSvgResult {
-  slots: SvgImageSlot[];
-  viewBox?: string;
-  width?: string;
-  height?: string;
-  aspectRatioDisplay: string;
-  hasPlaceholders: boolean;
-}
-
 /**
  * Parses all <image ...> tags from an SVG string.
  * Works isomorphically in both Browser and Node.js test environments.
  */
-export function parseSvgImages(svgText: string): ParseSvgResult {
+function parseSvgImages(svgText) {
   if (!svgText || typeof svgText !== 'string') {
     return { slots: [], aspectRatioDisplay: 'Unknown', hasPlaceholders: false };
   }
 
   // Extract root SVG attributes for dimensions
   const svgMatch = svgText.match(/<svg\b([^>]*)>/i);
-  let viewBox: string | undefined;
-  let width: string | undefined;
-  let height: string | undefined;
+  let viewBox;
+  let width;
+  let height;
 
   if (svgMatch && svgMatch[1]) {
     const attrString = svgMatch[1];
@@ -87,15 +60,15 @@ export function parseSvgImages(svgText: string): ParseSvgResult {
 
   // Match all <image .../> tags (including multiline and self-closing or paired)
   const imageTagRegex = /<image\b([^>]*)(?:\/>|>([\s\S]*?)<\/image>)/gi;
-  const slots: SvgImageSlot[] = [];
-  let match: RegExpExecArray | null;
+  const slots = [];
+  let match;
   let index = 0;
 
   while ((match = imageTagRegex.exec(svgText)) !== null) {
     const fullTag = match[0];
     const attrs = match[1];
 
-    const getAttr = (name: string): string | undefined => {
+    const getAttr = (name) => {
       const m = attrs.match(new RegExp(`${name}=["']([^"']*)["']`, 'i'));
       return m ? m[1] : undefined;
     };
@@ -113,8 +86,8 @@ export function parseSvgImages(svgText: string): ParseSvgResult {
     const preserveAspectRatio = getAttr('preserveAspectRatio');
     const clipPath = getAttr('clip-path') || getAttr('clipPath');
 
-    let type: SvgImageSlot['type'] = 'empty';
-    let mimeType: string | undefined;
+    let type = 'empty';
+    let mimeType;
 
     if (currentHref.startsWith('data:image/')) {
       type = 'base64';
@@ -175,30 +148,25 @@ export function parseSvgImages(svgText: string): ParseSvgResult {
 /**
  * Options for replacing SVG images
  */
-export interface ReplaceOptions {
-  preserveAspectRatio?: 'cover' | 'contain' | 'original' | 'none';
-  ensureXlink?: boolean;
-}
-
 /**
  * Replaces one or more image placeholders in the SVG with a new image URI (usually Data URL).
  */
-export function replaceSvgImages(
-  svgText: string,
-  replacements: Record<number | string, string>,
-  options: ReplaceOptions = {}
-): string {
+function replaceSvgImages(
+  svgText,
+  replacements,
+  options = {}
+) {
   if (!svgText) return '';
 
   let currentIndex = 0;
   const imageTagRegex = /<image\b([^>]*?)(\/?>)/gi;
 
-  const updatedSvg = svgText.replace(imageTagRegex, (fullMatch, attrContent: string, closing: string) => {
+  const updatedSvg = svgText.replace(imageTagRegex, (fullMatch, attrContent, closing) => {
     // Check if this slot matches either by numeric index or by id
     const idMatch = attrContent.match(/id=["']([^"']*)["']/i);
     const id = idMatch ? idMatch[1] : undefined;
 
-    let newHref: string | undefined;
+    let newHref;
     if (replacements[currentIndex] !== undefined) {
       newHref = replacements[currentIndex];
     } else if (id && replacements[id] !== undefined) {
@@ -265,18 +233,18 @@ export function replaceSvgImages(
 /**
  * Maps a single image to ALL detected image placeholders in the SVG.
  */
-export function replaceAllSvgImages(
-  svgText: string,
-  newImageUri: string,
-  options: ReplaceOptions = {}
-): string {
+function replaceAllSvgImages(
+  svgText,
+  newImageUri,
+  options = {}
+) {
   return replaceSvgImages(svgText, { '*': newImageUri }, options);
 }
 
 /**
  * Quick SVG validation helper.
  */
-export function validateSvg(svgText: string): { valid: boolean; error?: string } {
+function validateSvg(svgText) {
   if (!svgText || typeof svgText !== 'string' || !svgText.trim()) {
     return { valid: false, error: 'SVG file is empty' };
   }
@@ -286,3 +254,8 @@ export function validateSvg(svgText: string): { valid: boolean; error?: string }
   }
   return { valid: true };
 }
+
+this.parseSvgImages = parseSvgImages;
+this.replaceSvgImages = replaceSvgImages;
+this.replaceAllSvgImages = replaceAllSvgImages;
+this.validateSvg = validateSvg;
