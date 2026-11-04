@@ -9,13 +9,19 @@
     <meta property="og:description" content="Upload an SVG business card template, detect linked and embedded image placeholders, map new images, and export print-ready vectors." />
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%231d1d1f'/%3E%3C/svg%3E" />
+    <link rel="stylesheet" href="styles.css" />
   </head>
-  <body class="bg-[#F5F5F7] text-[#1D1D1F] antialiased min-h-screen selection:bg-[#0071E3]/20 selection:text-[#0071E3]">
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+  <body>
+    <!-- Open this file in a browser. These are classic scripts, so no bundler or compile step is required. -->
+    <div id="app"></div>
+    <script defer src="https://cdn.jsdelivr.net/npm/jspdf@4.2.1/dist/jspdf.umd.min.js"></script>
+    <script defer src="js/icons.js"></script>
+    <script defer src="js/svgImageParser.js"></script>
+    <script defer src="js/exportHelpers.js"></script>
+    <script defer src="js/app.js"></script>
   </body>
 </html>
-

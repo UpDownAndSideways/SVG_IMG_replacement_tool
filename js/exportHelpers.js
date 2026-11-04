@@ -3,23 +3,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { jsPDF } from 'jspdf';
 
-export type PaperSizeKey = 'letter' | 'ledger' | 'a3';
 
-export interface PaperSizeDefinition {
-  key: PaperSizeKey;
-  name: string;
-  description: string;
-  shortLabel: string;
-  // Dimensions in inches [short, long]
-  widthInInches: number; // short dimension in inches
-  heightInInches: number; // long dimension in inches
-  widthInMm: number;
-  heightInMm: number;
-}
-
-export const PAPER_SIZES: Record<PaperSizeKey, PaperSizeDefinition> = {
+const PAPER_SIZES = {
   letter: {
     key: 'letter',
     name: 'US Letter',
@@ -55,7 +41,7 @@ export const PAPER_SIZES: Record<PaperSizeKey, PaperSizeDefinition> = {
 /**
  * Inspects SVG content to detect orientation and intrinsic aspect ratio.
  */
-export function getSvgDimensions(svgContent: string): { width: number; height: number; isLandscape: boolean } {
+function getSvgDimensions(svgContent) {
   let width = 1050;
   let height = 600;
 
@@ -93,16 +79,7 @@ export function getSvgDimensions(svgContent: string): { width: number; height: n
 /**
  * Calculates exact target pixel dimensions at 300 DPI for a chosen paper size and orientation.
  */
-export function getTargetDimensions(
-  paperKey: PaperSizeKey,
-  isLandscape: boolean,
-  dpi = 300
-): {
-  pageWidthInches: number;
-  pageHeightInches: number;
-  pixelWidth: number;
-  pixelHeight: number;
-} {
+function getTargetDimensions(paperKey, isLandscape, dpi = 300) {
   const paper = PAPER_SIZES[paperKey];
   const shortInches = paper.widthInInches;
   const longInches = paper.heightInInches;
@@ -125,11 +102,11 @@ export function getTargetDimensions(
  * Renders SVG directly to a canvas of exact pixel dimensions (target width & height at 300 DPI).
  * Preserves the SVG's aspect ratio and centers it on the sheet without stretching or squashing.
  */
-export async function renderSvgToPrintCanvas(
-  svgContent: string,
-  targetWidth: number,
-  targetHeight: number
-): Promise<HTMLCanvasElement> {
+async function renderSvgToPrintCanvas(
+  svgContent,
+  targetWidth,
+  targetHeight
+) {
   return new Promise((resolve, reject) => {
     try {
       const blob = new Blob([svgContent], { type: 'image/svg+xml;charset=utf-8' });
@@ -187,11 +164,11 @@ export async function renderSvgToPrintCanvas(
 /**
  * Exports SVG to a print-ready PDF at exact paper dimensions (Letter, Ledger, or A3) at actual size.
  */
-export async function exportSvgToPrintPdf(
-  svgContent: string,
-  paperKey: PaperSizeKey,
+async function exportSvgToPrintPdf(
+  svgContent,
+  paperKey,
   fileName = 'business-cards-print.pdf'
-): Promise<void> {
+) {
   const { isLandscape } = getSvgDimensions(svgContent);
   const dims = getTargetDimensions(paperKey, isLandscape, 300);
 
@@ -201,7 +178,11 @@ export async function exportSvgToPrintPdf(
 
   // 2. Create PDF with the exact paper dimensions in inches
   const orientation = isLandscape ? 'landscape' : 'portrait';
-  const doc = new jsPDF({
+  const JsPDF = globalThis.jspdf && globalThis.jspdf.jsPDF;
+  if (!JsPDF) {
+    throw new Error('PDF library failed to load. Check your network connection and reload the page.');
+  }
+  const doc = new JsPDF({
     orientation,
     unit: 'in',
     format: [dims.pageWidthInches, dims.pageHeightInches],
@@ -219,11 +200,11 @@ export async function exportSvgToPrintPdf(
 /**
  * Exports SVG to a high-resolution PNG at exact print dimensions (Letter, Ledger, or A3) at actual size (300 DPI).
  */
-export async function exportSvgToPrintPng(
-  svgContent: string,
-  paperKey: PaperSizeKey,
+async function exportSvgToPrintPng(
+  svgContent,
+  paperKey,
   fileName = 'business-cards-print.png'
-): Promise<void> {
+) {
   const { isLandscape } = getSvgDimensions(svgContent);
   const dims = getTargetDimensions(paperKey, isLandscape, 300);
 
@@ -247,3 +228,10 @@ export async function exportSvgToPrintPng(
     }, 'image/png');
   });
 }
+
+this.PAPER_SIZES = PAPER_SIZES;
+this.getSvgDimensions = getSvgDimensions;
+this.getTargetDimensions = getTargetDimensions;
+this.renderSvgToPrintCanvas = renderSvgToPrintCanvas;
+this.exportSvgToPrintPdf = exportSvgToPrintPdf;
+this.exportSvgToPrintPng = exportSvgToPrintPng;
